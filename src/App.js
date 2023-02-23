@@ -1,25 +1,38 @@
-import logo from './logo.svg';
-import './App.css';
+import { useEffect, useState } from "react";
+import "./App.css";
+import axios from "axios";
+
+const baseURL = "https://api.nobelprize.org/2.1/nobelPrizes";
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+  const [list, setList] = useState(null);
+
+  useEffect(() => {
+    axios.get(baseURL).then((response) => {
+      setList(response.data);
+    });
+  }, []);
+
+  if (!list) return null;
+
+  function renderNobelPrize(nobelPrize) {
+    return (
+      <div>
+        <p>Year: {nobelPrize.awardYear}</p>
+        <ul>{nobelPrize.laureates.map(renderLaureates)}</ul>
+      </div>
+    );
+  }
+
+  function renderLaureates(laureate) {
+    if (laureate.knownName) {
+      return <li>{laureate.knownName.en}</li>;
+    } else {
+      return <li>{laureate.orgName.en}</li>;
+    }
+  }
+
+  return <div>{list.nobelPrizes.map(renderNobelPrize)}</div>;
 }
 
 export default App;
